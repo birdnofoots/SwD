@@ -110,6 +110,14 @@ object DidiSnap {
         val treeText = DidiTreeDump.dump(w)               // ★同步: 卡片此刻还在
         if (treeText.isEmpty()) return null
 
+        // 抓到的树里必须有卡片锚点, 否则说明拍到的是底下的首页(卡片已消失/在别的窗口)。
+        // 这种废样本既不上传、也不记为"已采", 让下一张卡重试 —— 否则会把该版本的
+        // 采集名额占死, 之后永远只有一份无用快照。
+        if (!treeText.contains("order_review_head_tag_view")) {
+            Log.w(TAG, "快照无卡片锚点(${tree.length()}节点疑似首页), 本次不记账, 下张卡重试")
+            return null
+        }
+
         val tree = JSONArray(treeText)
         val body = JSONObject()
             .put("appId", pkg)
