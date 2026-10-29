@@ -86,7 +86,16 @@ object DidiSnap {
         runCatching { seenFile().writeText(set.joinToString("\n")) }
     }
 
-    /** 同步构建快照 payload；没见过这个版本才返回，否则返回 null。 */
+    /**
+     * 同步构建快照 payload；该版本该卡种没见过才返回，否则返回 null。
+     *
+     * 顺序很重要：
+     *   1. 先抓树
+     *   2. 树里必须有卡片锚点（否则是底下的首页，作废重试）
+     *   3. 按内容分卡种（预约单有 order_review_fragment，实时单没有）
+     *   4. 最后才查"已采"集合 —— key 必须含卡种，否则同版本采到预约单后，
+     *      实时单就永远不会再采
+     */
     private fun buildPayload(root: android.view.accessibility.AccessibilityNodeInfo?): Payload? {
         val w = root ?: A11yService.instance?.windowNodeInfo ?: return null
         val pkg = w.packageName?.toString() ?: return null
@@ -102,10 +111,6 @@ object DidiSnap {
         val verCode = if (Build.VERSION.SDK_INT >= 28) info.longVersionCode.toInt()
         else info.versionCode
         val verName = info.versionName ?: ""
-        val key = "$pkg:$verCode"
-
-        val seen = loadSeen()
-        if (key in seen) return null                      // ★核心: 每个版本只采一次
 
         val treeText = DidiTreeDump.dump(w)               // ★同步: 卡片此刻还在
         if (treeText.isEmpty()) return null
@@ -118,6 +123,11 @@ object DidiSnap {
             return null
         }
 
+        // 预约单和实时单结构不同(实时单没有 order_review_fragment), 必须各存一份
+        val cardTag = if (treeText.contains("order_review_fragment")) "预约单" else "实时单"
+        val key = "$pkg:$verCode:$cardTag"
+        if (key in loadSeen()) return null                // ★该版本该卡种已采
+
         val tree = JSONArray(treeText)
         val body = JSONObject()
             .put("appId", pkg)
@@ -129,9 +139,9 @@ object DidiSnap {
             .put("screen", screenOf(w))
             .put("ts", java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US)
                 .format(java.util.Date()))
-            .put("tag", "card")
+            .put("tag", cardTag)
             .put("tree", tree)
-        Log.i(TAG, "采集快照 $pkg $verName($verCode) 节点=${tree.length()} -> 上传")
+        Log.i(TAG, "采集快照 $pkg $verName($verCode) [$cardTag] 节点=${tree.length()} -> 上传")
         return Payload(key = key, bytes = body.toString().toByteArray(Charsets.UTF_8))
     }
 
