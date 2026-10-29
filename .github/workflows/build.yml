@@ -12,6 +12,9 @@ on:
 jobs:
   build-android:
     runs-on: ubuntu-latest
+    # GitHub 默认给 GITHUB_TOKEN 只读权限, 创建 Release 需要 contents: write
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
 
