@@ -20,7 +20,7 @@ plugins {
 android {
     namespace = "li.gkd.android"
     defaultConfig {
-        applicationId = "com.birdnofoots.didigkd"   // fork: 与官方 GKD(li.songe.gkd) 并存
+        applicationId = "com.birdnofoots.swd"       // SwD(随我点): 独立发行版包名
         versionCode = rootProject.extra["gkdVersionCode"] as Int
         versionName = rootProject.extra["gkdVersionName"] as String
 
@@ -169,7 +169,7 @@ if (buildProperty("GKD_RENAME_PACKAGE_FLAG").isPresent) {
     androidComponents.onVariants { variant ->
         variant.outputs.onEach { output ->
             output as VariantOutputImpl
-            output.outputFileName = "gkd-v${output.versionName.get()}.apk"
+            output.outputFileName = "swd-v${output.versionName.get()}.apk"
         }
     }
 }

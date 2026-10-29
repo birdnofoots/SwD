@@ -27,7 +27,7 @@ plugins {
     alias(libs.plugins.littlerobots.version)
 }
 
-extra["gkdVersionName"] = "didigkd-1.13.0-beta-2" + project.gitInfo.versionNameSuffix.orEmpty()
+extra["gkdVersionName"] = "swd-1.13.0-beta-2" + project.gitInfo.versionNameSuffix.orEmpty()
 extra["gkdVersionCode"] = 94
 
 object Cfg {
