@@ -114,7 +114,7 @@ object DidiSnap {
         // 这种废样本既不上传、也不记为"已采", 让下一张卡重试 —— 否则会把该版本的
         // 采集名额占死, 之后永远只有一份无用快照。
         if (!treeText.contains("order_review_head_tag_view")) {
-            Log.w(TAG, "快照无卡片锚点(${tree.length()}节点疑似首页), 本次不记账, 下张卡重试")
+            Log.w(TAG, "快照无卡片锚点(${treeText.length}字符疑似首页), 本次不记账, 下张卡重试")
             return null
         }
 
