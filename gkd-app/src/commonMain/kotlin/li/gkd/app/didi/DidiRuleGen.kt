@@ -66,7 +66,7 @@ textarea{width:calc(100% - 24px);margin:12px;height:38vh;background:#12141a;colo
   休息期间：<b>预约单出发时间</b> 或 <b>当前时间</b> 任一落在区间内，一律「不抢」。
  </div>
  <div class="row"><label>强休时段</label>
- <input type="text" id="resthr" value="19+8" placeholder="19+8 或 19-24,0-3"></div>
+ <input type="text" id="resthr" value="" placeholder="19+8 或 19-24,0-3"></div>
  <div class="row"><label style="min-width:auto"><input type="checkbox" id="reston" checked> 启用</label>
  <span style="color:#888;font-size:12px">动作固定为「不抢」</span></div>
 </div>
