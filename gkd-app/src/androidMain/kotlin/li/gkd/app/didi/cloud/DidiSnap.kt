@@ -20,10 +20,11 @@ import li.gkd.app.storage.appStorage
  * 每个 (appId, versionCode) 有一份样本就够了。
  *
  * 行为：
- *   卡片出现 → 查本地已采集集合 → 没见过这个版本才拍 → 上传 → 记下
+ *   卡片出现 → 查本地已采集集合 → 没见过这个版本才同步抓树 → 异步上传 → 记下
  *   见过就什么都不做（流量几乎为零）
  *
- * ⚠️ 绝不阻塞卡片路径（卡片只活 138~294ms）→ 整个动作丢到后台线程。
+ * ⚠️ **抓树必须同步**（卡片只活 138~294ms），丢后台线程会抓到底下的首页；
+ *    只有网络上传可以后台跑，那部分不影响抢单。
  * ⚠️ 只在用户开了「静默上传」时才采集 —— 没开上传就不该产生流量。
  */
 object DidiSnap {
@@ -34,16 +35,32 @@ object DidiSnap {
     @Volatile
     private var running = false
 
-    /** 卡片处理完后调用。异步、不阻塞、失败不影响抢单。 */
-    fun maybeCapture() {
+    /**
+     * 卡片处理完后**立刻同步调用**（不能丢后台线程）。
+     *
+     * 教训：原来整段放后台线程，等线程调度到时卡片已经消失（只活 138~294ms），
+     * 抓到的是底下的滴滴首页 —— 183 个节点里一个卡片 viewId 都没有，完全没用。
+     * 现在：**树和元数据同步抓（卡片还在），只有网络上传放后台**。
+     */
+    fun maybeCapture(root: android.view.accessibility.AccessibilityNodeInfo?) {
         if (running) return
         if (!DidiCloudConfig.enabled.value) return
+        val payload = try {
+            buildPayload(root)
+        } catch (e: Throwable) {
+            Log.w(TAG, "快照构建失败: $e")
+            return
+        } ?: return
+        running = true            // 在起线程前置位, 避免两次调用同时通过检查
         Thread {
-            running = true
             try {
-                doCapture()
+                if (CloudSync.uploadSnap(payload.bytes)) {
+                    val s = loadSeen()          // buildPayload 里的 seen 是局部变量, 这里重读
+                    s.add(payload.key)
+                    saveSeen(s)
+                }
             } catch (e: Throwable) {
-                Log.w(TAG, "快照采集异常: $e")
+                Log.w(TAG, "快照上传异常: $e")
             } finally {
                 running = false
             }
@@ -69,15 +86,16 @@ object DidiSnap {
         runCatching { seenFile().writeText(set.joinToString("\n")) }
     }
 
-    private fun doCapture() {
-        val w = A11yService.instance?.windowNodeInfo ?: return
-        val pkg = w.packageName?.toString() ?: return
-        if (pkg == app.packageName) return          // 别抓自己
+    /** 同步构建快照 payload；没见过这个版本才返回，否则返回 null。 */
+    private fun buildPayload(root: android.view.accessibility.AccessibilityNodeInfo?): Payload? {
+        val w = root ?: A11yService.instance?.windowNodeInfo ?: return null
+        val pkg = w.packageName?.toString() ?: return null
+        if (pkg == app.packageName) return null          // 别抓自己
 
         val info = try {
             app.packageManager.getPackageInfo(pkg, 0)
         } catch (e: Exception) {
-            return
+            return null
         }
         // longVersionCode 是 API 28+, minSdk 26 要兜底
         @Suppress("DEPRECATION")
@@ -87,13 +105,13 @@ object DidiSnap {
         val key = "$pkg:$verCode"
 
         val seen = loadSeen()
-        if (key in seen) return                      // ★核心: 每个版本只采一次
+        if (key in seen) return null                      // ★核心: 每个版本只采一次
 
-        val treeText = DidiTreeDump.dump(w)
-        if (treeText.isEmpty()) return
+        val treeText = DidiTreeDump.dump(w)               // ★同步: 卡片此刻还在
+        if (treeText.isEmpty()) return null
 
         val tree = JSONArray(treeText)
-        val payload = JSONObject()
+        val body = JSONObject()
             .put("appId", pkg)
             .put("versionCode", verCode)
             .put("versionName", verName)
@@ -105,12 +123,10 @@ object DidiSnap {
                 .format(java.util.Date()))
             .put("tag", "card")
             .put("tree", tree)
-            .toString().toByteArray(Charsets.UTF_8)
-
         Log.i(TAG, "采集快照 $pkg $verName($verCode) 节点=${tree.length()} -> 上传")
-        if (CloudSync.uploadSnap(payload)) {
-            seen.add(key)
-            saveSeen(seen)                           // 上传成功才记下
-        }
+        return Payload(key = key, bytes = body.toString().toByteArray(Charsets.UTF_8))
     }
+
+    private class Payload(val key: String, val bytes: ByteArray)
+
 }
