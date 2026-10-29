@@ -110,6 +110,8 @@ object CloudSync {
             val tok = j.optString("token")
             if (tok.isEmpty()) return "ERR:服务器没返回 token"
             DidiCloudConfig.token.value = tok
+            // 开通即启用: 测试者填码点一下就该开始传, 不该还让他去开第二个开关
+            DidiCloudConfig.enabled.value = true
             DidiCloudConfig.save()
             val reused = j.optInt("reused", 0) == 1
             Log.i(TAG, "激活成功 uid=${j.optString("uid")} reused=$reused")

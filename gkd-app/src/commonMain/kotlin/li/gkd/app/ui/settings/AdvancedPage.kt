@@ -294,6 +294,14 @@ fun AdvancedPage(
             AdvancedSectionTitle("云端日志上传")
             DidiCloudConfig.load()
             var cloudOn by remember { mutableStateOf(DidiCloudConfig.enabled.value) }
+
+            // 云端配置可能被「激活码开通」改写(自动置 enabled=true)，这里同步让开关即时反映
+            LaunchedEffect(Unit) {
+                while (true) {
+                    delay(2000)
+                    cloudOn = DidiCloudConfig.enabled.value
+                }
+            }
             var cloudShots by remember { mutableStateOf(DidiCloudConfig.uploadShots.value) }
             var cloudUrl by remember { mutableStateOf(DidiCloudConfig.baseUrl.value) }
             var cloudToken by remember { mutableStateOf(DidiCloudConfig.token.value) }
