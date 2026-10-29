@@ -63,8 +63,11 @@ object DidiCardExtractor {
         // ⚠️ 不能取 [0]/[1]：实测 252 张真实卡片里有 **5 张出现 3 个 address_name**
         //    (同层级 d17, y 等距 99px)，取前两个就会把途经点当成目的地。
         //    改成 first()/last() 后，2 个或 3 个都正确。
+        // 实测(Mate60/滴滴9.3.6): 两个 address_name 是纵向排列(top 2118/2217, left 相同)。
+        // 但**不能只按 top 排** —— 万一同 top(横向布局/RTL/其它 ROM) 会退化成遍历顺序。
+        // 加 left 作次级键: 纵向时 left 相同无影响, 横向时按从左到右。
         val addrs = findAllByVid(frag, "address_name")
-            .sortedBy { topOf(it) }
+            .sortedWith(compareBy({ topOf(it) }, { leftOf(it) }))
             .mapNotNull { it.text?.toString()?.trim()?.takeIf { s -> s.isNotEmpty() } }
         val addrFrom = addrs.firstOrNull()
         val addrTo = addrs.lastOrNull()
