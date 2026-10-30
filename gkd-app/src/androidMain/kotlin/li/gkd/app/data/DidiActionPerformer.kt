@@ -11,7 +11,7 @@ import li.gkd.app.service.A11yService
 import li.gkd.app.subscription.RawSubscription
 
 /**
- * 滴滴专属动作 `action: "didi"` —— 薄补丁的唯一 GKD 核心接入点。
+ * 自定义动作 `action: "didi"` —— 薄补丁的唯一 GKD 核心接入点。
  *
  * ★P3: 决策不再硬编码, 而是交给 **flow.js**（内嵌 Rhino JS 引擎）：
  *   GKD 匹配卡片 → DidiActionPerformer → FlowEngine.onCard(card) → flow.js 自由决定

@@ -266,7 +266,7 @@ sealed class ActionPerformer(val action: String) {
                 Back,
                 None,
                 Swipe,
-                // DidiGKD 薄补丁: 滴滴专属动作, 业务逻辑全在 li.gkd.app.didi 包
+                // 薄补丁: 自定义动作, 业务逻辑全在 li.gkd.app.didi 包
                 li.gkd.app.data.DidiActionPerformer,
             )
         }

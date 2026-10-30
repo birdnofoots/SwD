@@ -268,8 +268,8 @@ fun AdvancedPage(
                 onClick = mainVm.githubUpload::editCookie,
             )
 
-            // ===== DidiGKD 滴滴自动化 开关组 =====
-            AdvancedSectionTitle("DidiGKD 滴滴自动化")
+            // ===== 随我点 开关组 =====
+            AdvancedSectionTitle("随我点")
             var didiTapEnabled by remember { mutableStateOf(DidiConfig.tapEnabled.value) }
             // 双向同步: HTTP POST /api/didi_tap 改了值, UI 也能刷新(每2秒)
             LaunchedEffect(Unit) {

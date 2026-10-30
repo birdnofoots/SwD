@@ -3,13 +3,13 @@ package li.gkd.app.subscription
 import li.gkd.db.SubscriptionIds
 
 /**
- * 内置滴滴规则（公开发行版）—— 装完即用，**不依赖任何联网订阅**。
+ * 内置规则（公开发行版）—— 装完即用，**不依赖任何联网订阅**。
  *
  * 背景：原分发方案把规则挂在本机 Termux 的 webserve 上(127.0.0.1:8765)，
  * 外部用户装了拿不到规则 = 空壳。GKD 本身有「本地订阅」(LOCAL = -2)，
- * 新装时会创建一个空订阅，这里在它为空时写入滴滴规则。
+ * 新装时会创建一个空订阅，这里在它为空时写入内置规则。
  *
- * 只负责「触发」：匹配滴滴卡片抬头 → 调 didi 动作。
+ * 只负责「触发」：匹配目标卡片抬头 → 调 didi 动作。
  * 所有阈值(价格/距离/时段/关键词)都在 flow.js 里 → 规则基本不用更新，
  * 以后改配置只改 flow.js(网页编辑器 /didi/flow 或 App 内入口)。
  *
@@ -20,7 +20,7 @@ object BuiltinDidiRule {
 
     private const val JSON5 = """{
   id: 20241025,
-  name: 'DidiGKD 滴滴决策',
+  name: '随我点 决策',
   version: 1,
   author: 'DidiGKD',
   categories: [],
@@ -28,11 +28,11 @@ object BuiltinDidiRule {
   apps: [
     {
       id: 'com.sdu.didi.gsui',
-      name: '滴滴车主',
+      name: '目标应用',
       groups: [
         {
           key: 0,
-          name: '滴滴决策(不抢/抢单/等价稳)',
+          name: '决策(不抢/抢单/等价稳)',
           desc: '匹配抬头 order_review_head_tag_view(预约单+实时单都有, 卡片专属) → didi 动作',
           enable: true,
           actionCd: 0,

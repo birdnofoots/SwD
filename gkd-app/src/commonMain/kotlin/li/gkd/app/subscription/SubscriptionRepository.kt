@@ -70,7 +70,7 @@ object SubscriptionRepository {
                         previous = SubscriptionSnapshot(),
                     )
                 }
-                // 分发版：本地订阅不存在或还是空的 → 写入内置滴滴规则(装完即用, 无需联网)
+                // 分发版：本地订阅不存在或还是空的 → 写入内置规则(装完即用, 无需联网)
                 val localBytes = files.readBytes(SubscriptionIds.LOCAL)
                 val localParsed = localBytes?.let {
                     try {

@@ -3,7 +3,7 @@ package li.gkd.app.didi
 import android.view.accessibility.AccessibilityNodeInfo
 
 /**
- * 从滴滴卡片的无障碍节点树，按 viewId 提取结构化字段 → [DidiCard]。
+ * 从目标卡片的无障碍节点树，按 viewId 提取结构化字段 → [DidiCard]。
  *
  * 这是把 DidiWatch 的 findCard() 移植成 Kotlin。viewId 与 DidiWatch 完全一致，
  * 便于影子对账（P4）逐字段比对。
@@ -12,7 +12,7 @@ import android.view.accessibility.AccessibilityNodeInfo
  */
 object DidiCardExtractor {
 
-    // 滴滴车主 包名（提取时只认这个包的节点）
+    // 目标应用包名（提取时只认这个包的节点）
     private const val PKG = "com.sdu.didi.gsui"
 
     // 关键 viewId（与 DidiWatch didi_tree.py 一致）
@@ -30,7 +30,7 @@ object DidiCardExtractor {
     private const val VID_HEAD_TAG = "order_review_head_tag_view" // 抬头
 
     /**
-     * 判断当前树上有没有滴滴卡片。
+     * 判断当前树上有没有目标卡片。
      * 口径与 DidiWatch 一致：必须有卡片容器，且有 价格 或 抬头 之一。
      */
     fun hasCard(root: AccessibilityNodeInfo?): Boolean {
@@ -63,7 +63,7 @@ object DidiCardExtractor {
         // ⚠️ 不能取 [0]/[1]：实测 252 张真实卡片里有 **5 张出现 3 个 address_name**
         //    (同层级 d17, y 等距 99px)，取前两个就会把途经点当成目的地。
         //    改成 first()/last() 后，2 个或 3 个都正确。
-        // 实测(Mate60/滴滴9.3.6): 两个 address_name 是纵向排列(top 2118/2217, left 相同)。
+        // 实测(Mate60/目标应用9.3.6): 两个 address_name 是纵向排列(top 2118/2217, left 相同)。
         // 但**不能只按 top 排** —— 万一同 top(横向布局/RTL/其它 ROM) 会退化成遍历顺序。
         // 加 left 作次级键: 纵向时 left 相同无影响, 横向时按从左到右。
         val addrs = findAllByVid(frag, "address_name")

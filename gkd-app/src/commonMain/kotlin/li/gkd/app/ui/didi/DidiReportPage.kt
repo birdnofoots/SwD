@@ -93,7 +93,7 @@ fun DidiReportPage() {
         modifier = Modifier.fillMaxSize(),
         topBar = {
             GkTopAppBar(
-                title = { Text("滴滴决策报告") },
+                title = { Text("决策报告") },
                 navigationIcon = { GkIconButton(imageVector = GkIcons.ArrowBack, onClick = mainVm.navigator::pop) },
                 actions = { GkIconButton(imageVector = GkIcons.Autorenew, onClick = { records = DidiReportData.load() }) },
             )

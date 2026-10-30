@@ -7,7 +7,7 @@ import java.io.FileWriter
 import li.gkd.app.storage.appStorage
 
 /**
- * 滴滴决策存档（P2）：决策后保存 截图 + 结构化记录。
+ * 决策存档（P2）：决策后保存 截图 + 结构化记录。
  *
  * 存储位置: 外部存储 /Android/data/<pkg>/files/DidiGKD/
  *   captures/didi_HHMMSS_<price>.jpg   截图(决策那一刻的屏幕)

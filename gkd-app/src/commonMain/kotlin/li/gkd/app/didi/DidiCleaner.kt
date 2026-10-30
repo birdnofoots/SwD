@@ -4,7 +4,7 @@ import java.io.File
 import li.gkd.app.storage.appStorage
 
 /**
- * 滴滴存档清理（P2，commonMain）：截图+记录**联动删**，防数据膨胀。
+ * 存档清理（P2，commonMain）：截图+记录**联动删**，防数据膨胀。
  * 不用 org.json(commonMain 平台无关, org.json 是 Android API) —— 用正则读 ts/shot 字段。
  */
 object DidiCleaner {
