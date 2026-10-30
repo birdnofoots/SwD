@@ -1,4 +1,4 @@
-# DidiGKD 公开发行版规划（release/public）
+# 随我点 公开发行版规划
 
 > 状态：P6-1 已完成。本文档随分支走，克隆仓库即得。
 > 分支：`release/public`　起点：`579c8a0`
@@ -7,13 +7,13 @@
 
 ## 一、目标
 
-把 DidiGKD 分发给其他滴滴车主使用，能收费，且能在服务器上按用户查看各自的日志网页。
+把随我点分发给其他使用者，能收费，且能在服务器上按用户查看各自的日志网页。
 
 ## 二、已完成（P6-1）
 
 | 改动 | 文件 | 说明 |
 |---|---|---|
-| 规则内置 | `subscription/BuiltinDidiRule.kt` | 本地订阅(LOCAL=-2)为空时写入滴滴规则 → **装完即用，离线** |
+| 规则内置 | `subscription/BuiltinDidiRule.kt` | 本地订阅(LOCAL=-2)为空时写入内置规则 → **装完即用，离线** |
 | 路径去硬编码 | `AppStorageLayout.kt` / `DidiArchiver.kt` / `FlowLoader.kt` / `DidiCleaner.kt` / `DidiReportPage.kt` | 4 处 `/storage/emulated/0/...` → `appStorage().didi`，内部封装 `getExternalFilesDir(null)`，自带外部不可用回退 |
 | 基础版 flow.js | `didi/flow/DefaultFlow.kt` | 阈值集中 `TH` 配置块 + 使用说明；Rhino harness 20/20 通过 |
 | 默认影子模式 | `didi/DidiConfig.kt` | `tapEnabled` 默认 **false**，新装用户只记录不点击 |
@@ -50,7 +50,7 @@ captures/*.jpg ───────┼─ POST /api/v1/upload (Bearer token) �
 
 ## 五、反检测（随机化）
 
-滴滴可用 `AccessibilityManager.getEnabledAccessibilityServiceList()` **公开 API** 读到所有已启用无障碍服务的 ComponentName 和 label，无需任何权限。所以这两项随机化有意义。
+被操作的应用可用 `AccessibilityManager.getEnabledAccessibilityServiceList()` **公开 API** 读到所有已启用无障碍服务的 ComponentName 和 label，无需任何权限。所以这两项随机化有意义。
 
 ### 5.1 包名随机 —— 关键是"跨用户随机、单用户固定"
 
@@ -62,7 +62,7 @@ captures/*.jpg ───────┼─ POST /api/v1/upload (Bearer token) �
 - 实现：Gradle 加 `-PdidiAppId=com.x.k<random>`（manifest 已大量用 `${applicationId}` 占位符，改动小）
 - 前提：**签名密钥必须全局一把**（否则该用户永远无法覆盖安装）→ 先把 easycontrol 密钥换成 DidiGKD 专用密钥
 - CI 按需出变体包
-- 不受影响的：内置规则里 `id: 'com.sdu.didi.gsui'` 是**被操作的滴滴**，不是自己的包名
+- 不受影响的：内置规则里 `id: '<目标包名>'` 是**被操作的应用**，不是自己的包名
 
 ### 5.2 无障碍服务名随机
 
@@ -72,7 +72,7 @@ captures/*.jpg ───────┼─ POST /api/v1/upload (Bearer token) �
 
 ### 5.3 顺手要做的权限收敛
 
-- `QUERY_ALL_PACKAGES` 很显眼，发行版若只操作滴滴可考虑收窄（需评估上游 GKD 依赖）
+- `QUERY_ALL_PACKAGES` 很显眼，发行版若只操作单一应用可考虑收窄（需评估上游 GKD 依赖）
 
 ## 六、混淆与真正的护城河
 
@@ -100,10 +100,10 @@ captures/*.jpg ───────┼─ POST /api/v1/upload (Bearer token) �
 
 ## 八、隐私结论
 
-发行版截图内容 = 滴滴卡片本身：出发地、目的地、价格、距离、时间、卡种。
+发行版截图内容 = 目标应用的卡片界面：关键字段与当时的屏幕。
 **接单前司机端看不到乘客手机号/昵称** → 无乘客个人信息。
 
-⚠️ 待核查一点：**`grab_ok` 截图（抢中后的接乘客页）**，该页可能显示乘客昵称/头像/虚拟号。上线前抽查几张，若有则该标签的截图默认不上传云端。
+⚠️ 待核查一点：**`grab_ok` 截图（操作完成后的结果页）**，该页可能显示第三方个人信息。上线前抽查几张，若有则该标签的截图默认不上传云端。
 
 ## 九、落地顺序
 
