@@ -20,6 +20,16 @@
     <uses-permission android:name="android.permission.GET_APP_OPS_STATS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
+    <!-- 最小够用声明: 只查询带启动器图标的应用(含目标应用)。
+         替代已移除的 QUERY_ALL_PACKAGES —— 后者能枚举全部应用, 特征过于明显。
+         只需要知道'谁装了哪些可启动应用', 就能拿到目标应用的版本号。 -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
     <application
         android:name="li.gkd.app.App"
         android:allowBackup="true"
