@@ -29,6 +29,7 @@ class DidiFlowHost : FlowHost {
         "grab" -> DidiVerdict.Grab
         "grab_ok" -> DidiVerdict.GrabOk
         "wait_price" -> DidiVerdict.WaitPrice
+        "realtime" -> DidiVerdict.Realtime
         else -> DidiVerdict.Pass
     }
 

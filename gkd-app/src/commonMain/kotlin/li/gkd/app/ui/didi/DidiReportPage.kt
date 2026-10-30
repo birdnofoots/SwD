@@ -126,6 +126,7 @@ private fun DidiRecordItem(r: DidiRecord, imageLoader: coil3.ImageLoader) {
     val verdictColor = when (r.verdict) {
         "grab" -> MaterialTheme.colorScheme.primary
         "no_grab" -> MaterialTheme.colorScheme.tertiary
+        "realtime" -> MaterialTheme.colorScheme.secondary
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
     Row(
