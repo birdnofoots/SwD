@@ -33,7 +33,12 @@ data object DidiActionPerformer : ActionPerformer("didi") {
         // 提取卡片字段(用根节点, 规则匹配的可能是叶子)
         val rootNode = A11yService.instance?.windowNodeInfo ?: node
         val card = DidiCardExtractor.extract(rootNode)
-            ?: return ActionResult(action = action, result = false)
+        if (card == null) {
+            // 失败路径原本完全静默 —— 漏单无法定位。留一行现场日志 + 抓一份节点树。
+            Log.w(TAG, "extract failed (no card fields), capturing scene")
+            li.gkd.app.didi.cloud.DidiSnap.captureFailure(rootNode)
+            return ActionResult(action = action, result = false)
+        }
 
         // P3热更新: 每次触发检查外部 flow.js 是否有改动(文件几KB, 读取开销可忽略);
         //   改了就热重载, 语法错则自动继续用上一版(见 FlowLoader)

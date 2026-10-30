@@ -87,6 +87,34 @@ object DidiSnap {
     }
 
     /**
+     * 字段提取失败时留现场 —— 否则漏单完全无法定位（规则匹配了，extract 却返回 null，
+     * 而失败路径原本一个字都不打）。key 带 `fail` 后缀，每个版本只留一份。
+     */
+    fun captureFailure(root: android.view.accessibility.AccessibilityNodeInfo?) {
+        if (running) return
+        if (!DidiCloudConfig.enabled.value) return
+        val payload = try {
+            buildPayload(root, forcedTag = "fail")
+        } catch (e: Throwable) {
+            Log.w(TAG, "失败现场构建异常: $e")
+            return
+        } ?: return
+        running = true
+        Thread {
+            try {
+                if (CloudSync.uploadSnap(payload.bytes)) {
+                    val s = loadSeen()
+                    s.add(payload.key)
+                    saveSeen(s)
+                }
+            } catch (e: Throwable) {
+                Log.w(TAG, "失败现场上传异常: $e")
+            } finally {
+                running = false
+            }
+        }.start()
+    }
+    /**
      * 同步构建快照 payload；该版本该卡种没见过才返回，否则返回 null。
      *
      * 顺序很重要：
@@ -96,7 +124,10 @@ object DidiSnap {
      *   4. 最后才查"已采"集合 —— key 必须含卡种，否则同版本采到预约单后，
      *      实时单就永远不会再采
      */
-    private fun buildPayload(root: android.view.accessibility.AccessibilityNodeInfo?): Payload? {
+    private fun buildPayload(
+        root: android.view.accessibility.AccessibilityNodeInfo?,
+        forcedTag: String? = null,
+    ): Payload? {
         val w = root ?: A11yService.instance?.windowNodeInfo ?: return null
         val pkg = w.packageName?.toString() ?: return null
         if (pkg == app.packageName) return null          // 别抓自己
@@ -118,13 +149,15 @@ object DidiSnap {
         // 抓到的树里必须有卡片锚点, 否则说明拍到的是底下的首页(卡片已消失/在别的窗口)。
         // 这种废样本既不上传、也不记为"已采", 让下一张卡重试 —— 否则会把该版本的
         // 采集名额占死, 之后永远只有一份无用快照。
-        if (!treeText.contains("order_review_head_tag_view")) {
+        // 失败现场采集(forcedTag != null)不做锚点校验 —— 抓不到锚点恰恰是要留下的证据
+        if (forcedTag == null && !treeText.contains("order_review_head_tag_view")) {
             Log.w(TAG, "快照无卡片锚点(${treeText.length}字符疑似首页), 本次不记账, 下张卡重试")
             return null
         }
 
         // 预约单和实时单结构不同(实时单没有 order_review_fragment), 必须各存一份
-        val cardTag = if (treeText.contains("order_review_fragment")) "预约单" else "实时单"
+        val cardTag = forcedTag
+            ?: if (treeText.contains("order_review_fragment")) "预约单" else "实时单"
         val key = "$pkg:$verCode:$cardTag"
         if (key in loadSeen()) return null                // ★该版本该卡种已采
 
