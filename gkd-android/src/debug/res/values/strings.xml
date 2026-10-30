@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">随我点-debug</string>
+    <string name="app_name">SWD-debug</string>
     <string name="import_backup">导入备份-debug</string>
     <string name="capture_snapshot">捕获快照-debug</string>
     <string name="http_server">HTTP服务-debug</string>

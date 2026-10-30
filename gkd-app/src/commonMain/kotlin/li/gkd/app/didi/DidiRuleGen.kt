@@ -70,11 +70,11 @@ textarea{width:calc(100% - 24px);margin:12px;height:38vh;background:#12141a;colo
  <div class="row"><label style="min-width:auto"><input type="checkbox" id="reston" checked> enabled</label>
  <span style="color:#888;font-size:12px">action is fixed to skip</span></div>
 </div>
-<div class="row"><label>keywords</label><input type="text" id="l1kw" value="岛,隧道,当前位置,码头"></div>
+<div class="row"><label>keywords</label><input type="text" id="l1kw" value=""></div>
 <div class="row"><label>action</label><select id="l1act"><option value="no_grab">skip</option><option value="grab">grab</option><option value="pass">pass</option></select></div></div>
 
 <div class="ly"><h3><span class="n">2</span>unreachable drop-off (addr contains keyword &rarr; action)</h3>
-<div class="row"><label>keywords</label><input type="text" id="l2kw" value="机场,客运站,邮轮,口岸"></div>
+<div class="row"><label>keywords</label><input type="text" id="l2kw" value=""></div>
 <div class="row"><label>action</label><select id="l2act"><option value="no_grab">skip</option><option value="grab">grab</option><option value="pass">pass</option></select></div></div>
 
 <div class="ly"><h3><span class="n">3</span>too cheap (price &lt; threshold; 0 = skip)</h3>
@@ -87,11 +87,11 @@ textarea{width:calc(100% - 24px);margin:12px;height:38vh;background:#12141a;colo
 <label style="min-width:auto"><input type="checkbox" id="l4on">enabled</label></div></div>
 
 <div class="ly"><h3><span class="n">5</span>near order (dist &lt; X and price &gt; Y &rarr; grab; 0 = skip)</h3>
-<div class="row"><label>dist &lt;</label><input type="number" id="l5d" value="20" step="1"><label>km, price &gt;</label><input type="number" id="l5p" value="100" step="1"></div>
+<div class="row"><label>dist &lt;</label><input type="number" id="l5d" value="0" step="1"><label>km, price &gt;</label><input type="number" id="l5p" value="0" step="1"></div>
 <div class="row"><label>action</label><select id="l5act"><option value="grab">grab</option><option value="no_grab">skip</option><option value="pass">pass</option></select></div></div>
 
 <div class="ly"><h3><span class="n">6</span>high price (price &gt; threshold &rarr; grab; 0 = skip)</h3>
-<div class="row"><label>price &gt;</label><input type="number" id="l6p" value="200" step="1">
+<div class="row"><label>price &gt;</label><input type="number" id="l6p" value="0" step="1">
 <select id="l6act"><option value="grab">grab</option><option value="no_grab">skip</option><option value="pass">pass</option></select></div></div>
 
 <div class="ly"><h3>grab confirmation</h3>
