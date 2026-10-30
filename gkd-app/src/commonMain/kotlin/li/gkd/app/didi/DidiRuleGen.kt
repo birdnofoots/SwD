@@ -161,6 +161,9 @@ function gen(){
   L.push('var __g={};');
   L.push('onCard(function(card){');
   L.push('  var ti=timeInfo(card.timeText);var price=Number(card.price);var dist=Number(card.distMe);');
+  // 实时单界面没有「不抢/抢单」按钮 —— 只记录，不做任何点击决策
+  L.push('  if(card.kind==="\u5b9e\u65f6\u5355"){screenshot("realtime");' +
+         'log("realtime p="+price+" d="+dist+" (no action)");return;}');
   var restRaw=String(V('resthr')).trim();
   if(V('reston')&&restRaw){
     var restWin=parseRestForGen(restRaw);

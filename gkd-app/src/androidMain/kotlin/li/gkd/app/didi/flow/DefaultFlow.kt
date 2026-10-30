@@ -53,6 +53,14 @@ function doSkip(card, layer, why) {
 onCard(function (card) {
   var price = Number(card.price);
 
+  // Realtime card has NO skip/grab button — there is nothing to tap.
+  // Record it and stop. Any decision here would be a no-op at best.
+  if (card.kind === "实时单") {
+    screenshot("realtime");
+    log("realtime p=" + price + " d=" + card.distMe + " (no action, card has no buttons)");
+    return;
+  }
+
   // L1: price below threshold -> no_grab
   if (!isNaN(price) && price < TH.minPrice) {
     doSkip(card, "price", "p=" + price);
