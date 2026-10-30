@@ -55,7 +55,7 @@ jobs:
             gh release upload latest "$APK" --clobber
           else
             gh release create latest --target "$GITHUB_SHA" \
-              --title "随我点 latest" \
+              --title "SwD latest" \
               --notes "每次 main 分支构建自动发布，仅供内测" \
               --prerelease "$APK"
           fi
