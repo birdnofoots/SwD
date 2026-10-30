@@ -33,7 +33,7 @@ object BuiltinDidiRule {
         {
           key: 0,
           name: '决策(不抢/抢单/等价稳)',
-          desc: '匹配抬头 order_review_head_tag_view(预约单+实时单都有, 卡片专属) → didi 动作',
+          desc: '决策 --> 自定义动作',
           enable: true,
           actionCd: 0,
           actionDelay: 50,
