@@ -115,7 +115,7 @@ class FlowEngine(private val host: FlowHost) {
             true
         } catch (e: Throwable) {
             lastError = e.message ?: "flow.js 加载失败"
-            android.util.Log.e("DidiGKD", "flow.js 加载失败: $lastError")
+            android.util.Log.e("SWD", "flow.js 加载失败: $lastError")
             // 回滚到上一版(若解析失败在 onCard 注册前, 这些本就没变)
             onCardFn = prevFn; cx = prevCx; scope = prevScope
             false
@@ -141,7 +141,7 @@ class FlowEngine(private val host: FlowHost) {
             fn.call(c, sc, sc, arrayOf(obj))
         } catch (e: Throwable) {
             lastError = e.message ?: "flow.js 执行失败"
-            android.util.Log.e("DidiGKD", "flow.js onCard 异常: $lastError")
+            android.util.Log.e("SWD", "flow.js onCard 异常: $lastError")
         } finally {
             Context.exit()
         }

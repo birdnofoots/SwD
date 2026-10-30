@@ -22,7 +22,7 @@ import li.gkd.app.subscription.RawSubscription
  */
 data object DidiActionPerformer : ActionPerformer("didi") {
 
-    private const val TAG = "DidiGKD"
+    private const val TAG = "SWD"
     private val flowHost = DidiFlowHost()
     private val flowEngine = FlowEngine(flowHost)
 

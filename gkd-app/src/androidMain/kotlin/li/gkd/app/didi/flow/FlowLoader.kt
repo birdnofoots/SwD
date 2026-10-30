@@ -17,7 +17,7 @@ import li.gkd.app.storage.appStorage
  *  - 新脚本有错 -> **继续用上一版好的**(防一次改错把抢单搞挂), 只记一次日志
  */
 object FlowLoader {
-    private const val TAG = "DidiGKD"
+    private const val TAG = "SWD"
     val flowFile: File get() = appStorage().didi.resolve("flow.js")
 
     private var loadedHash: String? = null   // 当前引擎里跑的版本

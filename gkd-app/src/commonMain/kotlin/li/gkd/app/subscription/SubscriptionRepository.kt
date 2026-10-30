@@ -88,7 +88,7 @@ object SubscriptionRepository {
                     val row = items.firstOrNull { it.id == SubscriptionIds.LOCAL }
                     if (row?.enable == false) {
                         Db.subsItemDao.upsert(row.copy(enable = true))
-                        android.util.Log.i("DidiGKD", "本地订阅被手动关闭过, 已自动重新启用")
+                        android.util.Log.i("SWD", "本地订阅被手动关闭过, 已自动重新启用")
                     }
                     return@withStateLock
                 }

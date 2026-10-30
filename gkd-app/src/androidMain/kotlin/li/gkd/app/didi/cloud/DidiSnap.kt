@@ -29,7 +29,7 @@ import li.gkd.app.storage.appStorage
  */
 object DidiSnap {
 
-    private const val TAG = "DidiGKD"
+    private const val TAG = "SWD"
     private const val SEEN_FILE = "snaps.seen"
 
     @Volatile

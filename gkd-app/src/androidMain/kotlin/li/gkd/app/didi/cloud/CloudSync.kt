@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 object CloudSync {
 
-    private const val TAG = "DidiCloud"
+    private const val TAG = "SWD.Cloud"
     private const val IDLE_MS = 10 * 60_000L       // 空闲巡检间隔(正式发布定为10分钟)
     private const val BACKOFF_MAX_MS = 10 * 60_000L
     private const val SHOTS_PER_CYCLE = 20         // 单轮最多传多少张图

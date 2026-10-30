@@ -60,7 +60,7 @@ object DidiCloudConfig {
                 }
             }
         }.onFailure {
-            android.util.Log.w("DidiCloud", "读取 cloud.conf 失败: $it")
+            android.util.Log.w("SWD.Cloud", "读取 cloud.conf 失败: $it")
         }
     }
 
@@ -77,7 +77,7 @@ object DidiCloudConfig {
                     "uploadShots=" + (if (uploadShots.value) "1" else "0") + "\n"
             )
         }.onFailure {
-            android.util.Log.w("DidiCloud", "写入 cloud.conf 失败: $it")
+            android.util.Log.w("SWD.Cloud", "写入 cloud.conf 失败: $it")
         }
     }
 

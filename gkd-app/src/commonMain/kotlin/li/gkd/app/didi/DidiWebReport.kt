@@ -124,7 +124,7 @@ body{font-family:system-ui;margin:0;background:#0f1115;color:#e6e6e6}
 </style></head>
 <body>
 <div class="h">
-  <div class="t"><b>DidiGKD 决策报告</b><button class="f" onclick="load()">刷新</button></div>
+  <div class="t"><b>SWD Report</b><button class="f" onclick="load()">刷新</button></div>
   <div class="bar" id="bar"></div>
 </div>
 <div class="c" id="c"><div class="n">加载中...</div></div>
@@ -182,7 +182,7 @@ function render(){
       +'<div class="to"><span class="lbl">\u4ece</span>'+(r.addrFrom||'-')+'</div>'
       +'<div class="to"><span class="lbl">\u5230</span>'+(r.addrTo||'-')+'</div></div></div>';
   }
-  h+='<div class="pg"><button onclick="prev()">上一页</button><span>'+String.fromCharCode(160)+list.length+'条 \u00b7 第'+(page+1)+'/'+pages+'页</span><button onclick="next()">下一页</button></div>';
+  h+='<div class="pg"><button onclick="prev()">prev</button><span>'+String.fromCharCode(160)+list.length+'条 \u00b7 第'+(page+1)+'/'+pages+'页</span><button onclick="next()">下一页</button></div>';
   c.innerHTML=h;}
 load();
 </script>
@@ -202,7 +202,7 @@ textarea{width:calc(100% - 24px);margin:12px;height:62vh;background:#12141a;colo
 #msg{color:#4d8bff}
 </style></head>
 <body>
-<div class="h"><b>flow.js 工作流定制</b><span><span id="msg"></span><button onclick="load()">重新载入</button><button onclick="save()">保存(下一单生效)</button></span></div>
+<div class="h"><b>flow.js editor</b><span><span id="msg"></span><button onclick="load()">reload</button><button onclick="save()">保存(下一单生效)</button></span></div>
 <p class="tip">
 四个关键字段(在 <b>card</b> 上): <b>price</b>价格 / <b>distMe</b>距我(km) / <b>timeText</b>时间 / <b>addrFrom</b>出发地<br>
 时间: <b>timeInfo(card.timeText)</b> 返回 {day:'今天'|'明天'|'后天', hour, min}<br>
@@ -251,11 +251,11 @@ pre{margin:10px 12px;background:#12141a;border:1px solid #2a2e37;border-radius:8
 </div>
 
 <div class="card"><h3>存档清理</h3>
-<div class="row"><label>删N天前</label><input type="number" id="days" value="30"><button class="r" onclick="clean()">执行清理</button></div>
+<div class="row"><label>delete older than N days</label><input type="number" id="days" value="30"><button class="r" onclick="clean()">执行清理</button></div>
 <div class="row" style="color:#8b93a7;font-size:12px">截图+记录联动删(不留孤儿)</div>
 </div>
 
-<div class="card"><h3>原始响应</h3><pre id="out">(尚未请求)</pre></div>
+<div class="card"><h3>raw response</h3><pre id="out">(尚未请求)</pre></div>
 
 <script>
 function show(t,m){document.getElementById('msg').textContent=t;if(m)document.getElementById('out').textContent=m;}

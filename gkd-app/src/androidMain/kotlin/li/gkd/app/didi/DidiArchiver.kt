@@ -82,7 +82,7 @@ object DidiArchiver {
             FileWriter(File(dir, "records.jsonl"), true).use { it.write(rec.toString() + "\n") }
             shotName
         } catch (e: Exception) {
-            android.util.Log.w("DidiGKD", "存档失败: $e")
+            android.util.Log.w("SWD", "存档失败: $e")
             ""
         }
     }

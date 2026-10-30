@@ -42,7 +42,7 @@ class DidiFlowHost : FlowHost {
             bmp?.recycle()
             name ?: ""
         } catch (e: Exception) {
-            android.util.Log.w("DidiGKD", "flow.screenshot 异常: $e")
+            android.util.Log.w("SWD", "flow.screenshot 异常: $e")
             ""
         }
     }
@@ -50,7 +50,7 @@ class DidiFlowHost : FlowHost {
     override fun flowTap(target: String): Boolean {
         // 影子模式: 只记录不点(开关 DidiConfig.tapEnabled, HTTP 可切)
         if (!li.gkd.app.didi.DidiConfig.tapEnabled.value) {
-            android.util.Log.i("DidiGKD", "flow.tap $target (影子模式, 不真点)")
+            android.util.Log.i("SWD", "flow.tap $target (影子模式, 不真点)")
             return true
         }
         val r = root ?: return false
@@ -61,12 +61,12 @@ class DidiFlowHost : FlowHost {
         } ?: return false
         val ok = btn.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         tapped = tapped || ok
-        android.util.Log.i("DidiGKD", "flow.tap $target → ${btn.viewIdResourceName} ok=$ok")
+        android.util.Log.i("SWD", "flow.tap $target → ${btn.viewIdResourceName} ok=$ok")
         return ok
     }
 
     override fun flowLog(msg: String) {
-        android.util.Log.i("DidiGKD", "flow.log $msg")
+        android.util.Log.i("SWD", "flow.log $msg")
     }
 
     override fun flowWait(ms: Int) {

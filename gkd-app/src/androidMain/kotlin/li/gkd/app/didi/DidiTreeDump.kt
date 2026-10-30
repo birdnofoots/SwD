@@ -79,7 +79,7 @@ object DidiTreeDump {
             sb.append(']')
             sb.toString()
         } catch (e: Throwable) {
-            android.util.Log.w("DidiGKD", "dumpTree 失败: $e")
+            android.util.Log.w("SWD", "dumpTree 失败: $e")
             ""
         }
     }

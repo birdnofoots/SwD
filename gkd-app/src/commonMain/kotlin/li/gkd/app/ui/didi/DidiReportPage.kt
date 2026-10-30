@@ -93,7 +93,7 @@ fun DidiReportPage() {
         modifier = Modifier.fillMaxSize(),
         topBar = {
             GkTopAppBar(
-                title = { Text("决策报告") },
+                title = { Text("SWD Report") },
                 navigationIcon = { GkIconButton(imageVector = GkIcons.ArrowBack, onClick = mainVm.navigator::pop) },
                 actions = { GkIconButton(imageVector = GkIcons.Autorenew, onClick = { records = DidiReportData.load() }) },
             )
@@ -101,7 +101,7 @@ fun DidiReportPage() {
     ) { padding ->
         if (records.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Text("暂无记录\n(等弹单后自动生成)", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("No records yet\n(awaiting first card)", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyColumn(
