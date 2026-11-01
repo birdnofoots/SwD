@@ -30,6 +30,7 @@ object DidiDirect {
 
     @Volatile private var lastCardAt = 0L        // 最近一次卡片处理时刻(performer 打点)
     @Volatile private var doneThisTrip = false   // 本趟单是否已记录过直派
+    @Volatile private var inTrip = false         // 已在行程中 -> 行程中切聊天/地图再回来不算新单
 
     /** 卡片路径打点：DidiActionPerformer 每次成功提取卡片后调用 */
     fun noteCard() {
@@ -42,9 +43,12 @@ object DidiDirect {
         val c = cls?.toString() ?: return
         if (c.endsWith("TripEndActivity")) {     // 趟边界: 上一单结束, 允许下一单再判
             doneThisTrip = false
+            inTrip = false
             return
         }
         if (!c.contains("OrderServingActivity")) return
+        if (inTrip) return                        // 行程中切回行程页(聊天/地图), 不是新单
+        inTrip = true                             // 新进入行程页
         val now = SystemClock.elapsedRealtime()
         val last = lastCardAt
         if (last == 0L) return                   // 启动后还没见过卡片, 无基线不判
