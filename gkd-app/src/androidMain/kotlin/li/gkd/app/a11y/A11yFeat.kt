@@ -29,6 +29,8 @@ import li.gkd.selector.SelectorCompileResult
 fun onA11yFeatEvent(event: AccessibilityEvent) = event.run {
     if (event.eventType == STATE_CHANGED) {
         watchCaptureScreenshot()
+        // 直派单检测: 不弹卡直接进行程页的派单方式, 无卡片可匹配, 只能在事件层观测
+        li.gkd.app.didi.DidiDirect.onWindow(event.packageName, event.className)
     }
     if (event.packageName == launcherAppId) {
         watchAutoUpdateSubs()

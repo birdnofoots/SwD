@@ -49,6 +49,7 @@ data object DidiActionPerformer : ActionPerformer("didi") {
         }
 
         // 更新卡片上下文, 交给 flow.js 决策+截图+点击
+        li.gkd.app.didi.DidiDirect.noteCard()   // 卡片基线: 直派检测用它算"距上一张卡多久"
         flowHost.root = rootNode
         flowHost.card = card
         flowHost.tapped = false
