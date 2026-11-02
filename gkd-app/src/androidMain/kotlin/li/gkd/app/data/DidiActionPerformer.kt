@@ -75,11 +75,11 @@ data object DidiActionPerformer : ActionPerformer("didi") {
         val active = svc?.windowNodeInfo
         if (active != null && DidiCardExtractor.hasCard(active)) return active
         for (w in svc?.windowInfos.orEmpty()) {
-            val r = try {
+            val r = (try {
                 w.root
             } catch (_: Throwable) {
                 null
-            } ?: continue
+            }) ?: continue
             if (DidiCardExtractor.hasCard(r)) return r
         }
         return active ?: fallback
