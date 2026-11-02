@@ -118,6 +118,9 @@ object DidiCardExtractor {
 
     // ---------- 节点查找 ----------
 
+    /** 公开: 树里有没有卡片抬头(实时单/预约单都有) —— 漏抓兜底判定用 */
+    fun hasHeadTag(root: AccessibilityNodeInfo?): Boolean = findByVid(root, VID_HEAD_TAG) != null
+
     /** 公开: 按 viewId 后缀找节点(供 flow.js readText 原语用) */
     fun nodeByVid(root: AccessibilityNodeInfo?, vid: String): AccessibilityNodeInfo? = findByVid(root, vid)
 
