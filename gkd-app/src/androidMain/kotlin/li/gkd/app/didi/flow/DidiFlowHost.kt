@@ -149,11 +149,11 @@ class DidiFlowHost : FlowHost {
 
     private fun gestureTap(x: Float, y: Float): Boolean {
         return try {
-            val gd = android.view.accessibility.GestureDescription.Builder()
+            val gd = android.accessibilityservice.GestureDescription.Builder()
             val path = android.graphics.Path()
             path.moveTo(x, y)
             gd.addStroke(
-                android.view.accessibility.GestureDescription.StrokeDescription(
+                android.accessibilityservice.GestureDescription.StrokeDescription(
                     path, 0, android.view.ViewConfiguration.getTapTimeout().toLong()
                 )
             )
