@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import li.gkd.app.META
 import li.gkd.app.error.displayMessage
+import li.gkd.app.network.AppLinks
 import li.gkd.app.network.NewVersion
 import li.gkd.app.network.UpdateClient
 import li.gkd.app.network.isNetworkRequestAllowed
@@ -69,9 +70,12 @@ class UpdateStatus(
                 lastCheckTime = System.currentTimeMillis()
                 val ignored = ignoreMutex.withLock { withContext(Dispatchers.IO) { readIgnored() } }
                 check(isNetworkRequestAllowed()) { getString(Res.string.network_unavailable) }
-                val url =
+                val primary =
                     UpdateChannel.entries.findOption(SettingsRepository.settings.value.updateChannel).url
-                val result = withContext(Dispatchers.IO) { UpdateClient.fetch(url) }
+                val manifestUrls = listOf(primary, AppLinks.UpdateManifestFallback).distinct()
+                val fetched = withContext(Dispatchers.IO) { fetchManifest(manifestUrls) }
+                    ?: throw IllegalStateException(getString(Res.string.network_unavailable))
+                val (url, result) = fetched
                 if (result.versionCode <= META.versionCode) {
                     if (manual) ToastUtils.show(getString(Res.string.updates_none))
                 } else if (manual || result.versionCode !in ignored) {
@@ -86,6 +90,20 @@ class UpdateStatus(
                 checkUpdatingFlow.value = false
             }
         }
+    }
+
+    /** 依次尝试各更新清单地址; 返回第一个成功的 (地址, 版本信息), 全部失败返回 null。 */
+    private suspend fun fetchManifest(urls: List<String>): Pair<String, NewVersion>? {
+        for (u in urls) {
+            try {
+                return u to UpdateClient.fetch(u)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                LogUtils.d("Update manifest fetch failed: $u", e)
+            }
+        }
+        return null
     }
 
     private fun startDownload(version: NewVersion) {

@@ -59,3 +59,10 @@ jobs:
               --notes "每次 main 分支构建自动发布，仅供内测" \
               --prerelease "$APK"
           fi
+          # 更新清单: App 检查更新时读它(服务器为主源, 这个 Release 资产是回退)。
+          python3 scripts/make_update_manifest.py \
+            --apk "$APK" \
+            --output swd-update.json \
+            --download-url "http://47.106.242.125:8790/download/didigkd.apk" \
+            --desc "SWD 自有构建"
+          gh release upload latest swd-update.json --clobber

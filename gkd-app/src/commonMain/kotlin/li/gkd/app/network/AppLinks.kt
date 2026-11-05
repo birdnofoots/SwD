@@ -2,8 +2,11 @@ package li.gkd.app.network
 
 object AppLinks {
     const val Home = "https://gkd.li"
-    const val Repository = "https://github.com/gkd-kit/gkd"
-    const val Issues = "https://github.com/gkd-kit/gkd/issues"
+    const val Repository = "https://github.com/birdnofoots/SwD"
+    const val Issues = "https://github.com/birdnofoots/SwD/issues"
+    /** 更新清单: 服务器直链(国内可达)为主, GitHub Release 资产为回退。 */
+    const val UpdateManifestFallback =
+        "https://github.com/birdnofoots/SwD/releases/download/latest/swd-update.json"
     const val ImportSnapshot = "https://i.gkd.li/i/"
     const val FileShort = "https://f.gkd.li/"
     const val ServerScript =

@@ -10,8 +10,8 @@ enum class UpdateChannel(
     override val labelResource: StringResource,
     val url: String,
 ) : Option<Int> {
-    Stable(0, Res.string.update_channel_stable, "https://registry.npmmirror.com/@gkd-kit/app/latest/files/index.json"),
-    Beta(1, Res.string.update_channel_beta, "https://registry.npmmirror.com/@gkd-kit/app-beta/latest/files/index.json");
+    Stable(0, Res.string.update_channel_stable, "http://47.106.242.125:8790/update/index.json"),
+    Beta(1, Res.string.update_channel_beta, "http://47.106.242.125:8790/update/index.json");
 
     override val options get() = entries
 }
