@@ -27,6 +27,23 @@ interface FlowHost {
     fun flowScreenHas(text: String): Boolean
     /** 导出当前窗口的无障碍节点树为 JSON(含层级 d/坐标 b/viewId)。用于版本差异采集。 */
     fun flowDumpTree(): String
+
+    // =====★2026-11-03 新增(能力增加, 不影响既有原语)=====
+    /** 正则匹配: scope=window(整屏文字)|card(卡片字段)。返回 JSON {"0":全串,"1":组1,...}; 无匹配返回空串 */
+    fun flowMatch(pattern: String, scope: String): String = ""
+    /** 通用找节点: target = JSON {id,text,desc,regex,skip,index} 或纯文本(=text)。返回 JSON {id,text,desc,x,y,bounds,clickable}; 找不到返回空串 */
+    fun flowFind(target: String): String = ""
+    /** 通用点击: target 同 flowFind, 或 "x,y"(坐标)。返回是否点到 */
+    fun flowClick(target: String): Boolean = false
+    /** 坐标矩形点击: "x1,y1,x2,y2" 取中心手势点一次(李跳跳式) */
+    fun flowClickRect(rect: String): Boolean = false
+    /** 返回键 GLOBAL_ACTION_BACK */
+    fun flowBack(): Boolean = false
+    /** 快照: 截图+节点树+当前变量, 返回快照名(空=失败) */
+    fun flowSnapshot(tag: String): String = ""
+    /** 变量表(跨 onCard 保持, 供后续步骤用) */
+    fun flowSetVar(k: String, v: String) {}
+    fun flowGetVar(k: String): String = ""
 }
 
 /**
@@ -107,6 +124,53 @@ class FlowEngine(private val host: FlowHost) {
             so.put("dumpTree", sc, object : BaseFunction() {
                 override fun call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array<out Any>): Any? =
                     host.flowDumpTree()
+            })
+
+            // =====★2026-11-03 新增原语=====
+            so.put("match", sc, object : BaseFunction() {
+                override fun call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array<out Any>): Any? {
+                    val pat = if (args.isNotEmpty()) Context.toString(args[0]) else ""
+                    val sc2 = if (args.size > 1) Context.toString(args[1]) else "window"
+                    return host.flowMatch(pat, sc2)
+                }
+            })
+            so.put("find", sc, object : BaseFunction() {
+                override fun call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array<out Any>): Any? {
+                    val t = if (args.isNotEmpty()) Context.toString(args[0]) else ""
+                    return host.flowFind(t)
+                }
+            })
+            so.put("click", sc, object : BaseFunction() {
+                override fun call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array<out Any>): Any? {
+                    val t = if (args.isNotEmpty()) Context.toString(args[0]) else ""
+                    return host.flowClick(t)
+                }
+            })
+            so.put("clickRect", sc, object : BaseFunction() {
+                override fun call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array<out Any>): Any? {
+                    val t = if (args.isNotEmpty()) Context.toString(args[0]) else ""
+                    return host.flowClickRect(t)
+                }
+            })
+            so.put("back", sc, object : BaseFunction() {
+                override fun call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array<out Any>): Any? = host.flowBack()
+            })
+            so.put("snapshot", sc, object : BaseFunction() {
+                override fun call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array<out Any>): Any? {
+                    val t = if (args.isNotEmpty()) Context.toString(args[0]) else ""
+                    return host.flowSnapshot(t)
+                }
+            })
+            so.put("setVar", sc, object : BaseFunction() {
+                override fun call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array<out Any>): Any? {
+                    if (args.size >= 2) host.flowSetVar(Context.toString(args[0]), Context.toString(args[1]))
+                    return Undefined.instance
+                }
+            })
+            so.put("getVar", sc, object : BaseFunction() {
+                override fun call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array<out Any>): Any? {
+                    return host.flowGetVar(if (args.isNotEmpty()) Context.toString(args[0]) else "")
+                }
             })
 
             c.evaluateString(sc, code, "flow.js", 1, null)

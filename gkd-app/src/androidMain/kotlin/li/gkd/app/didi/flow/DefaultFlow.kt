@@ -14,7 +14,11 @@ object DefaultFlow {
 // Single rule by design: price below minPrice -> tap "no_grab".
 // Everything else is left to the operator. Tune via the web editor.
 //
-// Primitives: onCard / tap / screenshot / log / wait / screenHas / readText
+// Primitives: onCard / tap / screenshot / log / wait / screenHas / readText / dumpTree
+// NEW 2026-11-03 (additive): match(pattern,scope) regex capture / find(target) locate node /
+//   click(target) generic click / clickRect('x1,y1,x2,y2') coord click / back() /
+//   snapshot(tag) screenshot+tree+vars / setVar(k,v) / getVar(k)
+//   target = {id,text,desc,regex,skip,index,exact} or 'x,y' coordinate
 // card fields: price, distMe, distAll, timeText, addrFrom, addrTo, kind
 // ==========================================================================
 

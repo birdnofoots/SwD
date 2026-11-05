@@ -41,6 +41,9 @@ object BuiltinDidiRule {
             {
               matches: ['[vid="order_review_head_tag_view"]'],
               action: 'didi',
+              // ★2026-11-03: matchRoot=true → 规则从整棵树(缓存根)查, 不再从事件 source 节点查。
+              //   实时单卡片的事件 source 常是卡片里某个具体节点, 抬头不在其子树 → 规则匹配不到 → 整张卡漏抓。
+              matchRoot: true,
             },
           ],
         },

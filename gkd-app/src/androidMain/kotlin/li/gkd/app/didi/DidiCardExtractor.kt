@@ -118,6 +118,75 @@ object DidiCardExtractor {
 
     // ---------- 节点查找 ----------
 
+    /**
+     * ★2026-11-03 通用查找(能力增加, 对齐 MacroDroid 的 UiInteractionConfiguration$Click):
+     *   target = JSON {id,text,desc,regex,skip,index,exact} 或纯文本(=按 text 包含匹配)
+     *   - id: viewId 后缀匹配(沿用既有语义)
+     *   - text/desc: 文本/描述匹配(exact=true 则全等)
+     *   - regex: 对 viewId/text/desc 任一做正则匹配
+     *   - skip: 跳过前 N 个匹配; index: 直接取第 N 个(优先)
+     */
+    fun findGeneric(root: AccessibilityNodeInfo?, target: String): AccessibilityNodeInfo? {
+        root ?: return null
+        val t = target.trim()
+        var idS: String? = null
+        var textS: String? = null
+        var descS: String? = null
+        var reS: String? = null
+        var skip = 0
+        var index = -1
+        var exact = false
+        if (t.startsWith("{")) {
+            try {
+                val o = org.json.JSONObject(t)
+                idS = o.optString("id").takeIf { it.isNotEmpty() }
+                textS = o.optString("text").takeIf { it.isNotEmpty() }
+                descS = o.optString("desc").takeIf { it.isNotEmpty() }
+                reS = o.optString("regex").takeIf { it.isNotEmpty() }
+                skip = o.optInt("skip", 0)
+                index = o.optInt("index", -1)
+                exact = o.optBoolean("exact", false)
+            } catch (e: Exception) {
+                textS = t
+            }
+        } else {
+            textS = t
+        }
+        val idC = idS
+        val textC = textS
+        val descC = descS
+        val re = reS?.let {
+            try {
+                java.util.regex.Pattern.compile(it)
+            } catch (e: Exception) {
+                null
+            }
+        }
+        val out = ArrayList<AccessibilityNodeInfo>()
+        fun walk(n: AccessibilityNodeInfo) {
+            val vid = n.viewIdResourceName ?: ""
+            val tx = n.text?.toString() ?: ""
+            val ds = n.contentDescription?.toString() ?: ""
+            var ok = false
+            if (!ok && idC != null) ok = vid.endsWith(idC)
+            if (!ok && textC != null) ok = if (exact) tx == textC else tx.contains(textC)
+            if (!ok && descC != null) ok = if (exact) ds == descC else ds.contains(descC)
+            if (!ok && re != null) ok = re.matcher(vid).find() || re.matcher(tx).find() || re.matcher(ds).find()
+            if (ok) out.add(n)
+            for (i in 0 until n.childCount) {
+                val c = n.getChild(i)
+                if (c != null) walk(c)
+            }
+        }
+        walk(root)
+        if (out.isEmpty()) return null
+        val pickIdx = if (index >= 0) index else skip
+        return if (pickIdx in out.indices) out[pickIdx] else out[0]
+    }
+
+    /** 公开: 树里有没有卡片抬头(实时单/预约单都有) —— 漏抓兜底判定用 */
+    fun hasHeadTag(root: AccessibilityNodeInfo?): Boolean = findByVid(root, VID_HEAD_TAG) != null
+
     /** 公开: 按 viewId 后缀找节点(供 flow.js readText 原语用) */
     fun nodeByVid(root: AccessibilityNodeInfo?, vid: String): AccessibilityNodeInfo? = findByVid(root, vid)
 

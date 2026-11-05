@@ -31,7 +31,7 @@ data object DidiActionPerformer : ActionPerformer("didi") {
         locationProps: RawSubscription.LocationProps,
     ): ActionResult {
         // 提取卡片字段(用根节点, 规则匹配的可能是叶子)
-        val rootNode = A11yService.instance?.windowNodeInfo ?: node
+        val rootNode = pickCardRoot(node)
         val card = DidiCardExtractor.extract(rootNode)
         if (card == null) {
             // 失败路径原本完全静默 —— 漏单无法定位。留一行现场日志 + 抓一份节点树。
@@ -62,5 +62,26 @@ data object DidiActionPerformer : ActionPerformer("didi") {
         // S3 版本差异采集: 没见过的 (appId, versionCode) 才拍一张, 异步不阻塞
         li.gkd.app.didi.cloud.DidiSnap.maybeCapture(rootNode)
         return ActionResult(action = action, result = tapped)
+    }
+
+    /**
+     * ★2026-11-03: 取树改为"多窗口兜底"。
+     * 背景: 实时单卡片常渲染在独立窗口/悬浮层里, rootInActiveWindow 看不到它;
+     *       规则虽命中, 但用活动窗口取字段会失败 → 整张卡漏抓(实测多次直派单误判)。
+     * 做法: 活动窗口里没有卡片时, 扫所有窗口(windows)找带抬头的那个。
+     */
+    private fun pickCardRoot(fallback: AccessibilityNodeInfo): AccessibilityNodeInfo {
+        val svc = A11yService.instance
+        val active = svc?.windowNodeInfo
+        if (active != null && DidiCardExtractor.hasCard(active)) return active
+        for (w in svc?.windowInfos.orEmpty()) {
+            val r = (try {
+                w.root
+            } catch (_: Throwable) {
+                null
+            }) ?: continue
+            if (DidiCardExtractor.hasCard(r)) return r
+        }
+        return active ?: fallback
     }
 }

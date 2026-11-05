@@ -27,6 +27,8 @@ import li.gkd.selector.Selector
 import li.gkd.selector.SelectorCompileResult
 
 fun onA11yFeatEvent(event: AccessibilityEvent) = event.run {
+    // ★2026-11-03 漏抓兜底: 任何事件都探一次"抬头在不在树上"(内部节流 150ms)
+    li.gkd.app.didi.DidiDirect.probeHead(event.packageName)
     if (event.eventType == STATE_CHANGED) {
         watchCaptureScreenshot()
         // 直派单检测: 不弹卡直接进行程页的派单方式, 无卡片可匹配, 只能在事件层观测
