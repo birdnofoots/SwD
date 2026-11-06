@@ -53,6 +53,34 @@ object CloudSync {
     private fun capturesDir() = File(dir(), "captures")
     private fun cursorFile() = File(dir(), "uploads.cursor")
     private fun shotsFile() = File(dir(), "uploads.shots")
+    private fun tokenFile() = File(dir(), "uploads.token")
+
+    /**
+     * ★2026-11-06: 换 token(换激活码)后必须清游标与去重名单。
+     * 游标(uploads.cursor)和名单(uploads.shots/snaps.seen)记的是"旧账号已传到哪",
+     * 对新账号(服务端是空的)毫无意义 —— 不清就永远不传: 新账号记录为零、
+     * 截图缺失、报告页图片全是占位符(实测踩坑: 859 条记录零上传、876 张图只传 140)。
+     */
+    private fun resetUploadState() {
+        runCatching { cursorFile().writeText("0") }
+        runCatching { shotsFile().delete() }
+        runCatching { File(dir(), "snaps.seen").delete() }
+        runCatching { tokenFile().writeText(DidiCloudConfig.token.value) }
+        Log.i(TAG, "已清上传游标与去重名单(换 token)")
+    }
+
+    /** token 变了(手动改 cloud.conf 的情况)也要清; 首次只记录不动作。 */
+    private fun resetIfTokenChanged() {
+        val tok = DidiCloudConfig.token.value
+        if (tok.isEmpty()) return
+        val f = tokenFile()
+        val prev = runCatching { f.readText().trim() }.getOrNull()
+        if (prev == null) {
+            runCatching { f.writeText(tok) }
+            return
+        }
+        if (prev != tok) resetUploadState()
+    }
 
     /** 幂等启动。由 App.onCreate 调用。 */
     fun start() {
@@ -113,6 +141,9 @@ object CloudSync {
             // 开通即启用: 测试者填码点一下就该开始传, 不该还让他去开第二个开关
             DidiCloudConfig.enabled.value = true
             DidiCloudConfig.save()
+            // ★2026-11-06: 换激活码 = 换 token = 服务端是个新账号(空的),
+            //   游标和去重名单必须清零, 否则新账号永远收不到历史记录/截图
+            resetUploadState()
             val reused = j.optInt("reused", 0) == 1
             Log.i(TAG, "激活成功 uid=${j.optString("uid")} reused=$reused")
             "OK:已开通${if (reused) "(该设备已绑定, 返回原 Token)" else ""}"
@@ -144,6 +175,7 @@ object CloudSync {
     /** 一轮同步。true = 有数据传成功（下轮可马上再来），false = 无新数据或失败。 */
     private fun syncCycle(): Boolean {
         if (!DidiCloudConfig.ready) return false
+        resetIfTokenChanged()
         if (!syncing.compareAndSet(false, true)) return false
         return try {
             val recordsOk = postNewRecords()
