@@ -28,7 +28,7 @@ plugins {
 }
 
 extra["gkdVersionName"] = "swd-1.13.0-beta-2" + project.gitInfo.versionNameSuffix.orEmpty()
-extra["gkdVersionCode"] = 95
+extra["gkdVersionCode"] = 96
 
 object Cfg {
     val compileSdk get() = 37

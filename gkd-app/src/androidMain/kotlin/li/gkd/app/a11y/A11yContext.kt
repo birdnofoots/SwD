@@ -507,18 +507,29 @@ class A11yContext(
         return adapter.querySelector(node, selector, options)
     }
 
-    fun queryRule(
+    /**
+     * ★2026-11-06: matchRoot=true 时不能只用活动窗口的根。
+     * 卡片常以覆盖层弹在"前台是桌面"的场景下(实测 8:41 那单: 卡片完整渲染,
+     * 但 safeActiveWindow = UniHomeLauncher, 抬头不在桌面的树里 -> 规则匹配不到 -> 整张卡漏抓)。
+     * 改为: 活动窗口根 + 其余窗口根都试一遍, 任一命中即返回。
+     */
+    private fun queryRoots(primary: AccessibilityNodeInfo?): List<AccessibilityNodeInfo> {
+        val roots = ArrayList<AccessibilityNodeInfo>()
+        primary?.let(roots::add)
+        runCatching {
+            li.gkd.app.service.A11yService.instance?.windowInfos.orEmpty()
+        }.getOrNull()?.forEach { w ->
+            val r = runCatching { w.root }.getOrNull() ?: return@forEach
+            if (roots.none { it.hashCode() == r.hashCode() }) roots.add(r)
+        }
+        return roots
+    }
+
+    private fun queryRuleOn(
         rule: ResolvedRule,
-        node: AccessibilityNodeInfo,
+        queryNode: AccessibilityNodeInfo,
     ): AccessibilityNodeInfo? {
-        currentRule = rule
-        try {
-            val queryNode = if (rule.matchRoot) {
-                getCacheRoot()
-            } else {
-                node
-            } ?: return null
-            var resultNode: AccessibilityNodeInfo? = null
+        var resultNode: AccessibilityNodeInfo? = null
             if (rule.anyMatches.isNotEmpty()) {
                 for (selector in rule.anyMatches) {
                     resultNode = querySelfOrSelector(
@@ -557,6 +568,23 @@ class A11yContext(
                 }
             }
             return resultNode
+    }
+
+    fun queryRule(
+        rule: ResolvedRule,
+        node: AccessibilityNodeInfo,
+    ): AccessibilityNodeInfo? {
+        currentRule = rule
+        try {
+            return if (rule.matchRoot) {
+                for (root in queryRoots(getCacheRoot())) {
+                    val hit = queryRuleOn(rule, root)
+                    if (hit != null) return hit
+                }
+                null
+            } else {
+                queryRuleOn(rule, node)
+            }
         } finally {
             currentRule = null
         }
